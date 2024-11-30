@@ -36,8 +36,7 @@ enum Emoji {
     SmileFace = 34,
 }
 
-enum LedColor 
-{
+enum LedColor {
 	Red = 0x00,
 	Orange = 0x12,
 	Yellow = 0x18,
@@ -48,6 +47,13 @@ enum LedColor
 	Pink = 0xdc,
 	White = 0xfe,
 	Black = 0xff,
+};
+
+enum Orientation {
+    Rotate_0 = 0,
+    Rotate_90 = 1,
+    Rotate_180 = 2,
+    Rotate_270 = 3,
 };
 
 //% weight=10 color=#A5825B icon="\uf00a" block="RGB Matrix"
@@ -233,5 +239,24 @@ namespace rgbmatrix {
             }
             pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
         }
+    }
+
+    /**
+    * Description
+    *    Setting the display orientation.
+    *    This function can be used before or after display.
+    *	DO NOT WORK with displayColorWave(), displayClockwise(), displayColorAnimation()
+    * @param orientation: DISPLAY_ROTATE_0, DISPLAY_ROTATE_90, DISPLAY_ROTATE_180,
+    *  DISPLAY_ROTATE_270, which means the display will rotate 0°, 90°,180° or 270°.
+    */
+    //% blockId=display_orientation
+    //% block="set display orientation $orientation"
+    export function setDisplayOrientation(orientation: Orientation) {
+        let data = pins.createBuffer(2);
+        
+        data[0] = I2C_CMD_DISP_ROTATE;
+        data[1] = orientation;
+        
+        pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
 }
