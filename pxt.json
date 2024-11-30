@@ -1,0 +1,11 @@
+{
+    "name": "8x8LedMatrix",
+    "version": "0.0.0",
+    "files": [
+        "main.ts"
+    ],
+    "dependencies": {
+        "core": "*"
+    },
+    "testDependencies": {}
+}
