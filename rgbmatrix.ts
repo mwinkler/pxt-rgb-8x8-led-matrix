@@ -271,6 +271,7 @@ namespace rgbmatrix {
         
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
+
     /**
      * Setting the display offset of x-axis and y-axis.
 	 * This function can be used before or after display.
@@ -295,6 +296,32 @@ namespace rgbmatrix {
         data[0] = I2C_CMD_DISP_OFFSET;
         data[1] = offset_x;
         data[2] = offset_y;
+
+        pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
+    }
+
+    /**
+     * Display a bar on RGB LED Matrix.
+     * @param bar 0 - 32. 0 is blank and 32 is full.
+     * @param color Set the color of the display, range from 0 to 255. See LedColor enum for more details.
+     * @param duration_time Set the display time(ms) duration.
+     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
+     */
+    //% blockId=display_bar
+    //% block="display bar $bar color $color"
+    //% bar.min=0 bar.max=32
+    //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
+    export function displayBar(bar: number, color: LedColor = LedColor.Red, duration_time: number = 0, forever_flag: boolean = true) {
+        let data = pins.createBuffer(6);
+        
+        bar = Math.min(bar, 32);
+        
+        data[0] = I2C_CMD_DISP_BAR;
+        data[1] = bar;
+        data[2] = duration_time & 0xff;
+        data[3] = (duration_time >> 8) & 0xff;
+        data[4] = forever_flag ? 1 : 0;
+        data[5] = color;
 
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
