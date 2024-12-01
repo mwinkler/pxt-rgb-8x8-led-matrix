@@ -271,4 +271,31 @@ namespace rgbmatrix {
         
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
+    /**
+     * Setting the display offset of x-axis and y-axis.
+	 * This function can be used before or after display.
+	 * DO NOT WORK with displayColorWave(), displayClockwise(), displayColorAnimation(),
+	 * displayNumber(when number<0 or number>=10), displayString(when more than one character)
+     * @param offset_x The display offset value of horizontal x-axis, range from -8 to 8.
+     * @param offset_y The display offset value of horizontal y-axis, range from -8 to 8.
+     */
+    //% blockId=display_offset
+    //% block="set display offset x $offset_x y $offset_y"
+    //% offset_x.min=-8 offset_x.max=8 offset_x.defl=0
+    //% offset_y.min=-8 offset_y.max=8 offset_y.defl=0
+    export function setDisplayOffset(offset_x: number, offset_y: number) {
+        // convert to positive
+        offset_x += 8;
+        offset_y = offset_y * -1 + 8;
+        offset_x = Math.min(16, Math.max(0, offset_x));
+        offset_y = Math.min(16, Math.max(0, offset_y));
+
+        let data = pins.createBuffer(3);
+
+        data[0] = I2C_CMD_DISP_OFFSET;
+        data[1] = offset_x;
+        data[2] = offset_y;
+
+        pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
+    }
 }
