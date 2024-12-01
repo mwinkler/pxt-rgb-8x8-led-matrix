@@ -92,21 +92,13 @@ namespace rgbmatrix {
     const I2C_CMD_TEST_GET_VER =        			0xe2; // This command use to get software version
     const I2C_CMD_GET_DEVICE_UID =      			0xf1; // This command use to get chip id
 
-    // //% blockId=draw_pixel
-    // export function drawPixel(x: number, y: number, color: color) {
-    //     let buf = pins.createBuffer(72);
-    //     buf[0] = 0x05;         //I2C_CMD_DISP_CUSTOM
-    //     buf[1] = 0xD0;         //(duration_time & 0xff); duration_time = 2000
-    //     buf[2] = 0x07;         //((duration_time >> 8) & 0xff); duration_time = 2000
-    // }
-
     /**
     * Display emoji on LED matrix.
     * @param emoji Set a number from 0 to 34 for different emoji.
-    * @param duration_time Set the display time(ms) duration. Set it to 0 to not display.
+    * @param duration_time Set the display time(ms) duration.
     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
     */
-    //% blockId=draw_emoji
+    //% blockId=display_emoji
     //% block="draw emoji $emoji||duration (ms) $duration_time or forever $forever_flag"
     //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
     export function drawEmoji(emoji: Emoji, duration_time: number = 0, forever_flag: boolean = true) {
@@ -125,8 +117,7 @@ namespace rgbmatrix {
     /**
     * Display color block on LED matrix with a given rgb color.
     * @param rgb rgb color, such as 0xff0000(red), 0x0000ff(blue)
-    * @param color Set the color of the display, range from 0 to 255. See LedColor for more details.
-    * @param duration_time Set the display time(ms) duration. Set it to 0 to not display.
+    * @param duration_time Set the display time(ms) duration.
     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
     */
     //% blockId=display_color_block
@@ -154,7 +145,7 @@ namespace rgbmatrix {
     *		 scroll horizontally when its length is more than 1. The shorter 
     *		 you set the duration time, the faster it scrolls.
     * @param color Set the color of the display, range from 0 to 255. See LedColor for more details.
-    * @param duration_time Set the display time(ms) duration. Set it to 0 to not display.
+    * @param duration_time Set the display time(ms) duration.
     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
     */
     //% blockId=display_string
@@ -186,7 +177,7 @@ namespace rgbmatrix {
 	*		 the faster it scrolls. The number range from -32768 to +32767, if 
 	*		 you want to display larger number, please use displayString().
     * @param color Set the color of the display, range from 0 to 255. See LedColor for more details.
-    * @param duration_time Set the display time(ms) duration. Set it to 0 to not display.
+    * @param duration_time Set the display time(ms) duration.
     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
     */
     //% blockId=display_number
@@ -207,6 +198,15 @@ namespace rgbmatrix {
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
 
+    /**
+    * Display user-defined frames on LED matrix.
+    * @param buffer The data pointer. 1 frame needs 64 bytes data. 1 pixel = 1 byte (reduced color palette, see LedColor enum). 
+    *        Frames will switch automatically when the frames_number is larger than 1. The shorter 
+    *        you set the duration_time, the faster it switches.
+    * @param duration_time Set the display time(ms) duration.
+    * @param forever_flag Set it to true to display forever, or set it to false to display one time.
+    * @param frames_number the number of frames in your buffer. Range from 1 to 5.
+    */
     export function displayFrames(buffer: Array<number>, duration_time: number = 0, forever_flag: boolean = true, frames_number: number = 1) {
         let data = pins.createBuffer(72);
         
@@ -242,10 +242,9 @@ namespace rgbmatrix {
     }
 
     /**
-    * Description
-    *    Setting the display orientation.
-    *    This function can be used before or after display.
-    *	DO NOT WORK with displayColorWave(), displayClockwise(), displayColorAnimation()
+    * Setting the display orientation.
+    * This function can be used before or after display.
+    * DO NOT WORK with displayColorWave(), displayClockwise(), displayColorAnimation()
     * @param orientation: DISPLAY_ROTATE_0, DISPLAY_ROTATE_90, DISPLAY_ROTATE_180,
     *  DISPLAY_ROTATE_270, which means the display will rotate 0°, 90°,180° or 270°.
     */
@@ -256,6 +255,19 @@ namespace rgbmatrix {
         
         data[0] = I2C_CMD_DISP_ROTATE;
         data[1] = orientation;
+        
+        pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
+    }
+
+    /**
+     * Display nothing on LED Matrix.     
+     * */
+    //% blockId=display_stop
+    //% block="stop display"
+    export function stopDisplay() {
+        let data = pins.createBuffer(1);
+        
+        data[0] = I2C_CMD_DISP_OFF;
         
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }

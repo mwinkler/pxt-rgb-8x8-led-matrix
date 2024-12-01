@@ -1,5 +1,9 @@
 # pxt-rgb-led-matrix
 
+MakeCode block for [Grove - RGB LED Matrix](https://wiki.seeedstudio.com/Grove-RGB_LED_Matrix_w-Driver/) with MY9221 driver via I2C.
+
+<img src="https://files.seeedstudio.com/wiki/Grove-RGB_LED_Matrix_w-Driver/img/main.jpg" style="width: 400px" />
+
 
 
 ## TODO
@@ -14,7 +18,7 @@
 Read more at https://makecode.microbit.org/packages/build-your-own
 
 ## License
-
+MIT
 
 
 ## Supported targets
