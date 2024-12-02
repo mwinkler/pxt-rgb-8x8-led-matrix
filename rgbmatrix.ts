@@ -90,7 +90,14 @@ namespace rgbmatrix {
     const I2C_CMD_TEST_TX_RX_ON =       			0xe0; // This command enable TX RX pin test mode
     const I2C_CMD_TEST_TX_RX_OFF =      			0xe1; // This command disable TX RX pin test mode
     const I2C_CMD_TEST_GET_VER =        			0xe2; // This command use to get software version
-    const I2C_CMD_GET_DEVICE_UID =      			0xf1; // This command use to get chip id
+    const I2C_CMD_GET_DEVICE_UID = 0xf1; // This command use to get chip id
+    
+    function applyDuration(buffer: Buffer, duration_time: number, durationIndexStart: number) {
+        duration_time = duration_time == null ? -1 : duration_time;
+        buffer[durationIndexStart] = duration_time & 0xff;
+        buffer[durationIndexStart + 1] = (duration_time >> 8) & 0xff;
+        buffer[durationIndexStart + 2] = duration_time == null || Number.isNaN(duration_time) ? 1 : 0;
+    }
 
     /**
     * Display emoji on LED matrix.
@@ -98,9 +105,10 @@ namespace rgbmatrix {
     * @param duration_time Set the display time(ms) duration.
     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
     */
-    //% blockId=display_emoji
+    //% blockId=rgbmatrix_display_emoji
     //% block="draw emoji $emoji||duration (ms) $duration_time or forever $forever_flag"
     //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
+    //% inlineInputMode=inline
     export function drawEmoji(emoji: Emoji, duration_time: number = 0, forever_flag: boolean = true) {
         let data = pins.createBuffer(5);
 
@@ -120,10 +128,11 @@ namespace rgbmatrix {
     * @param duration_time Set the display time(ms) duration.
     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
     */
-    //% blockId=display_color_block
+    //% blockId=rgbmatrix_display_color_block
     //% block="display color $rgb||duration (ms) $duration_time or forever $forever_flag"
     //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
     //% rgb.shadow="colorNumberPicker"
+    //% inlineInputMode=inline
     export function displayColorBlock(rgb: number, duration_time: number = 0, forever_flag: boolean = true) {
         let data = pins.createBuffer(7);
 
@@ -148,10 +157,11 @@ namespace rgbmatrix {
     * @param duration_time Set the display time(ms) duration.
     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
     */
-    //% blockId=display_string
+    //% blockId=rgbmatrix_display_string
     //% block="display string $str||color $color|duration (ms) $duration_time|forever $forever_flag"
     //% duration_time.defl=5000
     //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
+    //% inlineInputMode=inline
     export function displayString(str: string, color: LedColor = LedColor.Red, duration_time: number = 5000, forever_flag: boolean = true) {
         let str_len = Math.min(str.length, 28)
         let data = pins.createBuffer(str_len + 6);
@@ -180,10 +190,11 @@ namespace rgbmatrix {
     * @param duration_time Set the display time(ms) duration.
     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
     */
-    //% blockId=display_number
+    //% blockId=rgbmatrix_display_number
     //% block="display number $number||color $color|duration (ms) $duration_time|forever $forever_flag"
     //% duration_time.defl=5000
     //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
+    //% inlineInputMode=inline
     export function displayNumber(number: number, color: LedColor = LedColor.Red, duration_time: number = 5000, forever_flag: boolean = true) {
         let data = pins.createBuffer(7);
 
@@ -248,7 +259,7 @@ namespace rgbmatrix {
     * @param orientation: DISPLAY_ROTATE_0, DISPLAY_ROTATE_90, DISPLAY_ROTATE_180,
     *  DISPLAY_ROTATE_270, which means the display will rotate 0°, 90°,180° or 270°.
     */
-    //% blockId=display_orientation
+    //% blockId=rgbmatrix_display_orientation
     //% block="set display orientation $orientation"
     export function setDisplayOrientation(orientation: Orientation) {
         let data = pins.createBuffer(2);
@@ -262,7 +273,7 @@ namespace rgbmatrix {
     /**
      * Display nothing on LED Matrix.     
      * */
-    //% blockId=display_stop
+    //% blockId=rgbmatrix_display_stop
     //% block="stop display"
     export function stopDisplay() {
         let data = pins.createBuffer(1);
@@ -280,7 +291,7 @@ namespace rgbmatrix {
      * @param offset_x The display offset value of horizontal x-axis, range from -8 to 8.
      * @param offset_y The display offset value of horizontal y-axis, range from -8 to 8.
      */
-    //% blockId=display_offset
+    //% blockId=rgbmatrix_display_offset
     //% block="set display offset x $offset_x y $offset_y"
     //% offset_x.min=-8 offset_x.max=8 offset_x.defl=0
     //% offset_y.min=-8 offset_y.max=8 offset_y.defl=0
@@ -307,21 +318,24 @@ namespace rgbmatrix {
      * @param duration_time Set the display time(ms) duration.
      * @param forever_flag Set it to true to display forever, or set it to false to display one time.
      */
-    //% blockId=display_bar
-    //% block="display bar $bar color $color"
+    //% blockId=rgbmatrix_display_bar
+    //% block="display bar $bar color $color||duration $duration"
     //% bar.min=0 bar.max=32
-    //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
-    export function displayBar(bar: number, color: LedColor = LedColor.Red, duration_time: number = 0, forever_flag: boolean = true) {
+    //% duration.fieldEditor="numberdropdown"
+    //% duration.fieldOptions.decompileLiterals=true
+    //% duration.fieldOptions.data='[["Forever", -1], ["Never", 0], ["100 ms", 100]]'
+    //% duration.defl='-1'
+    //% inlineInputMode=inline
+    export function displayBar(bar: number, color: LedColor = LedColor.Red, duration?: number) {
         let data = pins.createBuffer(6);
         
         bar = Math.min(bar, 32);
         
         data[0] = I2C_CMD_DISP_BAR;
         data[1] = bar;
-        data[2] = duration_time & 0xff;
-        data[3] = (duration_time >> 8) & 0xff;
-        data[4] = forever_flag ? 1 : 0;
         data[5] = color;
+
+        applyDuration(data, duration, 2);
 
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
