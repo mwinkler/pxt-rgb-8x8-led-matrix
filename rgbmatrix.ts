@@ -102,22 +102,22 @@ namespace rgbmatrix {
     /**
     * Display emoji on LED matrix.
     * @param emoji Set a number from 0 to 34 for different emoji.
-    * @param duration_time Set the display time(ms) duration.
-    * @param forever_flag Set it to true to display forever, or set it to false to display one time.
+    * @param duration Set the display time(ms) duration (-1 = forever).
     */
     //% blockId=rgbmatrix_display_emoji
-    //% block="draw emoji $emoji||duration (ms) $duration_time or forever $forever_flag"
-    //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
+    //% block="draw emoji $emoji||duration (ms) $duration"
+    //% duration.fieldEditor="numberdropdown"
+    //% duration.fieldOptions.decompileLiterals=true
+    //% duration.fieldOptions.data='[["Forever", -1],["Never",0],["100 ms",100],["200 ms",200],["500 ms",500],["1 s",1000],["2 s",2000],["5 s",5000]]'
+    //% duration.defl='-1'
     //% inlineInputMode=inline
-    export function drawEmoji(emoji: Emoji, duration_time: number = 0, forever_flag: boolean = true) {
+    export function drawEmoji(emoji: Emoji, duration?: number) {
         let data = pins.createBuffer(5);
 
         data[0] = I2C_CMD_DISP_EMOJI;
         data[1] = emoji;
         
-        data[2] = duration_time & 0xff;
-        data[3] = (duration_time >> 8) & 0xff;
-        data[4] = forever_flag ? 1 : 0;
+        applyDuration(data, duration, 2);
     
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
@@ -125,15 +125,17 @@ namespace rgbmatrix {
     /**
     * Display color block on LED matrix with a given rgb color.
     * @param rgb rgb color, such as 0xff0000(red), 0x0000ff(blue)
-    * @param duration_time Set the display time(ms) duration.
-    * @param forever_flag Set it to true to display forever, or set it to false to display one time.
+    * @param duration Set the display time(ms) duration (-1 = forever).
     */
     //% blockId=rgbmatrix_display_color_block
-    //% block="display color $rgb||duration (ms) $duration_time or forever $forever_flag"
-    //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
+    //% block="display color $rgb||duration (ms) $duration"
     //% rgb.shadow="colorNumberPicker"
+    //% duration.fieldEditor="numberdropdown"
+    //% duration.fieldOptions.decompileLiterals=true
+    //% duration.fieldOptions.data='[["Forever", -1],["Never",0],["100 ms",100],["200 ms",200],["500 ms",500],["1 s",1000],["2 s",2000],["5 s",5000]]'
+    //% duration.defl='-1'
     //% inlineInputMode=inline
-    export function displayColorBlock(rgb: number, duration_time: number = 0, forever_flag: boolean = true) {
+    export function displayColorBlock(rgb: number, duration?: number) {
         let data = pins.createBuffer(7);
 
         data[0] = I2C_CMD_DISP_COLOR_BLOCK;
@@ -141,10 +143,8 @@ namespace rgbmatrix {
         data[2] = (rgb >> 8) & 0xff;
         data[3] = rgb & 0xff;
 
-        data[4] = duration_time & 0xff;
-        data[5] = (duration_time >> 8) & 0xff;
-        data[6] = forever_flag ? 1 : 0;
-    
+        applyDuration(data, duration, 4);
+
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
 
@@ -192,10 +192,10 @@ namespace rgbmatrix {
     */
     //% blockId=rgbmatrix_display_number
     //% block="display number $number||color $color|duration (ms) $duration_time|forever $forever_flag"
-    //% duration_time.defl=5000
+    //% duration_time.defl=2000
     //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
     //% inlineInputMode=inline
-    export function displayNumber(number: number, color: LedColor = LedColor.Red, duration_time: number = 5000, forever_flag: boolean = true) {
+    export function displayNumber(number: number, color: LedColor = LedColor.Red, duration_time: number = 2000, forever_flag: boolean = true) {
         let data = pins.createBuffer(7);
 
         data[0] = I2C_CMD_DISP_NUM;
@@ -315,15 +315,14 @@ namespace rgbmatrix {
      * Display a bar on RGB LED Matrix.
      * @param bar 0 - 32. 0 is blank and 32 is full.
      * @param color Set the color of the display, range from 0 to 255. See LedColor enum for more details.
-     * @param duration_time Set the display time(ms) duration.
-     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
+     * @param duration Set the display time(ms) duration (-1 = forever).
      */
     //% blockId=rgbmatrix_display_bar
-    //% block="display bar $bar color $color||duration $duration"
+    //% block="display bar $bar color $color||duration (ms) $duration"
     //% bar.min=0 bar.max=32
     //% duration.fieldEditor="numberdropdown"
     //% duration.fieldOptions.decompileLiterals=true
-    //% duration.fieldOptions.data='[["Forever", -1], ["Never", 0], ["100 ms", 100]]'
+    //% duration.fieldOptions.data='[["Forever", -1],["Never",0],["100 ms",100],["200 ms",200],["500 ms",500],["1 s",1000],["2 s",2000],["5 s",5000]]'
     //% duration.defl='-1'
     //% inlineInputMode=inline
     export function displayBar(bar: number, color: LedColor = LedColor.Red, duration?: number) {
