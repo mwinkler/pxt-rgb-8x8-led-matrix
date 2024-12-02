@@ -154,15 +154,18 @@ namespace rgbmatrix {
     *		 scroll horizontally when its length is more than 1. The shorter 
     *		 you set the duration time, the faster it scrolls.
     * @param color Set the color of the display, range from 0 to 255. See LedColor for more details.
-    * @param duration_time Set the display time(ms) duration.
-    * @param forever_flag Set it to true to display forever, or set it to false to display one time.
+    * @param duration Set the display time(ms) duration.
+    * @param forever Set it to true to display forever, or set it to false to display one time.
     */
     //% blockId=rgbmatrix_display_string
-    //% block="display string $str||color $color|duration (ms) $duration_time|forever $forever_flag"
-    //% duration_time.defl=5000
-    //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
+    //% block="display string $str||color $color|duration (ms) $duration|forever $forever"
+    //% duration.fieldEditor="numberdropdown"
+    //% duration.fieldOptions.decompileLiterals=true
+    //% duration.fieldOptions.data='[["500 ms",500],["1 s",1000],["2 s",2000],["5 s",5000],["10 s",10000]]'
+    //% duration.defl=5000
+    //% forever.shadow="toggleOnOff" forever.defl=true
     //% inlineInputMode=inline
-    export function displayString(str: string, color: LedColor = LedColor.Red, duration_time: number = 5000, forever_flag: boolean = true) {
+    export function displayString(str: string, color: LedColor = LedColor.Red, duration: number = 5000, forever: boolean = true) {
         let str_len = Math.min(str.length, 28)
         let data = pins.createBuffer(str_len + 6);
 
@@ -171,9 +174,9 @@ namespace rgbmatrix {
         }
 
         data[0] = I2C_CMD_DISP_STR;
-        data[1] = forever_flag ? 1 : 0;
-        data[2] = duration_time & 0xff;
-        data[3] = (duration_time >> 8) & 0xff;
+        data[1] = forever ? 1 : 0;
+        data[2] = duration & 0xff;
+        data[3] = (duration >> 8) & 0xff;
         data[4] = str_len;
         data[5] = color;
 
@@ -187,23 +190,26 @@ namespace rgbmatrix {
 	*		 the faster it scrolls. The number range from -32768 to +32767, if 
 	*		 you want to display larger number, please use displayString().
     * @param color Set the color of the display, range from 0 to 255. See LedColor for more details.
-    * @param duration_time Set the display time(ms) duration.
-    * @param forever_flag Set it to true to display forever, or set it to false to display one time.
+    * @param duration Set the display time(ms) duration.
+    * @param forever Set it to true to display forever, or set it to false to display one time.
     */
     //% blockId=rgbmatrix_display_number
-    //% block="display number $number||color $color|duration (ms) $duration_time|forever $forever_flag"
-    //% duration_time.defl=2000
-    //% forever_flag.shadow="toggleOnOff" forever_flag.defl=true
+    //% block="display number $number||color $color|duration (ms) $duration|forever $forever"
+    //% duration.fieldEditor="numberdropdown"
+    //% duration.fieldOptions.decompileLiterals=true
+    //% duration.fieldOptions.data='[["500 ms",500],["1 s",1000],["2 s",2000],["5 s",5000]]'
+    //% duration.defl=2000
+    //% forever.shadow="toggleOnOff" forever.defl=true
     //% inlineInputMode=inline
-    export function displayNumber(number: number, color: LedColor = LedColor.Red, duration_time: number = 2000, forever_flag: boolean = true) {
+    export function displayNumber(number: number, color: LedColor = LedColor.Red, duration: number = 2000, forever: boolean = true) {
         let data = pins.createBuffer(7);
 
         data[0] = I2C_CMD_DISP_NUM;
         data[1] = number & 0xff;
         data[2] = (number >> 8) & 0xff;
-        data[3] = duration_time & 0xff;
-        data[4] = (duration_time >> 8) & 0xff;
-        data[5] = forever_flag ? 1 : 0;
+        data[3] = duration & 0xff;
+        data[4] = (duration >> 8) & 0xff;
+        data[5] = forever ? 1 : 0;
         data[6] = color;
 
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
