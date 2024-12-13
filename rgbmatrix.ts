@@ -93,10 +93,10 @@ namespace rgbmatrix {
     const I2C_CMD_GET_DEVICE_UID = 0xf1; // This command use to get chip id
     
     function applyDuration(buffer: Buffer, duration_time: number, durationIndexStart: number) {
-        duration_time = duration_time == null ? -1 : duration_time;
-        buffer[durationIndexStart] = duration_time & 0xff;
-        buffer[durationIndexStart + 1] = (duration_time >> 8) & 0xff;
-        buffer[durationIndexStart + 2] = duration_time == null || Number.isNaN(duration_time) ? 1 : 0;
+        let dt = duration_time > 0 ? duration_time : 0;
+        buffer[durationIndexStart] = dt & 0xff;
+        buffer[durationIndexStart + 1] = (dt >> 8) & 0xff;
+        buffer[durationIndexStart + 2] = duration_time > 0 ? 0 : 1;
     }
 
     /**
