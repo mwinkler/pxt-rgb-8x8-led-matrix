@@ -259,6 +259,43 @@ namespace rgbmatrix {
         }
     }
 
+    /** 
+    * Display a single frame
+    * @param frame 8x8 number array ([x][y])
+    * @param duration Set the display time(ms) duration (-1 = forever).
+    */
+    export function displayFrame(frame: number[][], duration?: number) {
+        let data = pins.createBuffer(72);
+        
+        data[0] = I2C_CMD_DISP_CUSTOM;
+        data[4] = 1;    // total frames
+        data[5] = 0;    // frame number
+        
+        for (let x = 0; x < 8; x++)
+            for (let y = 0; y < 8; y++)
+                data[8 + x + (y * 8)] = frame[x][y];
+    
+        applyDuration(data, duration, 1);
+
+        pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
+    }
+
+    /**
+     * Creates a frame buffer filled with color
+     * @param color Prefilled color
+     * @returns 8x8 number array
+     */
+    export function createFrame(color?: LedColor): number[][] {
+        let buffer: number[][] = [];
+        color = color == null ? LedColor.Black : color;
+
+        for (let i = 0; i <= 7; i++) {
+            buffer[i] = [color, color, color, color, color, color, color, color];
+        }
+        
+        return buffer;
+    }
+
     /**
     * Setting the display orientation.
     * This function can be used before or after display.
