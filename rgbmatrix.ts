@@ -221,10 +221,10 @@ namespace rgbmatrix {
 *            1 frame needs 64 bytes data. 1 pixel = 1 byte (reduced color palette, see LedColor enum). 
     *        Frames will switch automatically when the frame buffer is larger than 64 (max 5 frames, 320 bytes). 
     *        The shorter you set the duration, the faster it switches.
-    * @param duration_time Set the display time(ms) duration.
-    * @param forever_flag Set it to true to display forever, or set it to false to display one time.
+    * @param duration Set the display time(ms) duration.
+    * @param forever Set it to true to display forever, or set it to false to display one time.
     */
-    export function displayFrames(buffer: Array<number>, duration_time: number = 0, forever_flag: boolean = true) {
+    export function displayFrames(buffer: Array<number>, duration: number = 0, forever: boolean = true) {
         let data = pins.createBuffer(72);
         
         if (buffer.length % 64 != 0)
@@ -250,9 +250,9 @@ namespace rgbmatrix {
             
             if (i == 0) {
                 // display when everything is finished.
-                data[1] = duration_time & 0xff;
-                data[2] = (duration_time >> 8) & 0xff;
-                data[3] = forever_flag ? 1 : 0;
+                data[1] = duration & 0xff;
+                data[2] = (duration >> 8) & 0xff;
+                data[3] = forever ? 1 : 0;
             }
 
             pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
