@@ -217,18 +217,20 @@ namespace rgbmatrix {
 
     /**
     * Display user-defined frames on LED matrix.
-    * @param buffer The data pointer. 1 frame needs 64 bytes data. 1 pixel = 1 byte (reduced color palette, see LedColor enum). 
-    *        Frames will switch automatically when the frames_number is larger than 1. The shorter 
-    *        you set the duration_time, the faster it switches.
+    * @param buffer The frame buffer need to be a multiple of 64 in length. 
+*            1 frame needs 64 bytes data. 1 pixel = 1 byte (reduced color palette, see LedColor enum). 
+    *        Frames will switch automatically when the frame buffer is larger than 64 (max 5 frames, 320 bytes). 
+    *        The shorter you set the duration, the faster it switches.
     * @param duration_time Set the display time(ms) duration.
     * @param forever_flag Set it to true to display forever, or set it to false to display one time.
-    * @param frames_number the number of frames in your buffer. Range from 1 to 5.
     */
-    export function displayFrames(buffer: Array<number>, duration_time: number = 0, forever_flag: boolean = true, frames_number: number = 1) {
+    export function displayFrames(buffer: Array<number>, duration_time: number = 0, forever_flag: boolean = true) {
         let data = pins.createBuffer(72);
         
-        if (frames_number <= 0)
-            return;
+        if (buffer.length % 64 != 0)
+            throw "Invalid buffer size (need to be a multiple of 64)"
+
+        let frames_number = buffer.length / 64;
         
         // max 5 frames in storage
         frames_number = Math.min(frames_number, 5);
@@ -239,21 +241,20 @@ namespace rgbmatrix {
         data[3] = 0x0;
         data[4] = frames_number;
 
-        for (let i = frames_number - 1; i >= 0; i--)
-        {
+        for (let i = frames_number - 1; i >= 0; i--) {
             data[5] = i;
             
             for (let j = 0; j < 64; j++) {
                 data[8 + j] = buffer[j + i * 64];
             }
             
-            if (i == 0)
-            {
+            if (i == 0) {
                 // display when everything is finished.
                 data[1] = duration_time & 0xff;
                 data[2] = (duration_time >> 8) & 0xff;
                 data[3] = forever_flag ? 1 : 0;
             }
+
             pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
         }
     }
