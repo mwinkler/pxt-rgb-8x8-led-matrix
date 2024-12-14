@@ -218,7 +218,7 @@ namespace rgbmatrix {
     /**
     * Display user-defined frames on LED matrix.
     * @param buffer The frame buffer need to be a multiple of 64 in length. 
-*            1 frame needs 64 bytes data. 1 pixel = 1 byte (reduced color palette, see LedColor enum). 
+    *        1 frame needs 64 bytes data. 1 pixel = 1 byte (reduced color palette, see LedColor enum). 
     *        Frames will switch automatically when the frame buffer is larger than 64 (max 5 frames, 320 bytes). 
     *        The shorter you set the duration, the faster it switches.
     * @param duration Set the display time(ms) duration.
@@ -379,6 +379,33 @@ namespace rgbmatrix {
         data[5] = color;
 
         applyDuration(data, duration, 2);
+
+        pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
+    }
+
+    /**
+     * Display a clockwise(or anti-clockwise) animation on RGB LED Matrix.
+     * @param is_cw Set it true to display a clockwise animation, while set it false to display a anti-clockwise
+     * @param is_big Set it true to display a 8*8 animation, while set it false to display a 4*4 animation
+     * @param duration Set the display time(ms) duration.
+     * @param forever Set it to true to display forever, or set it to false to display one time.
+     */
+    //% blockId=rgbmatrix_display_clockwise
+    //% block="display clockwise $is_cw big $is_big||duration (ms) $duration|forever $forever"
+    //% is_cw.shadow="toggleOnOff"
+    //% is_big.shadow="toggleOnOff"
+    //% duration.defl=1000
+    //% forever.shadow="toggleOnOff" forever.defl=true
+    //% inlineInputMode=inline
+    export function displayClockwise(is_cw: boolean, is_big: boolean, duration: number = 1000, forever: boolean = true) {
+        let data = pins.createBuffer(6);
+        
+        data[0] = I2C_CMD_DISP_COLOR_CLOCKWISE;
+        data[1] = is_cw ? 1 : 0;
+        data[2] = is_big ? 1 : 0;
+        data[3] = duration & 0xff;
+        data[4] = (duration >> 8) & 0xff;
+        data[5] = forever ? 1 : 0;
 
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
