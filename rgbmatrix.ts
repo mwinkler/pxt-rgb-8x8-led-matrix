@@ -1,4 +1,4 @@
-enum Emoji {
+enum LedEmoji {
     Smile = 0,
     Laugh = 1,
     Sad = 2,
@@ -49,12 +49,21 @@ enum LedColor {
 	Black = 0xff,
 };
 
-enum Orientation {
+enum LedOrientation {
     Rotate_0 = 0,
     Rotate_90 = 1,
     Rotate_180 = 2,
     Rotate_270 = 3,
 };
+
+enum LedAnimation {
+    BigClockwise = 0,
+    SmallClockwise = 1,
+    RainbowCycle = 2,
+    Fire = 3,
+    WalkingChild = 4,
+    BrokenHeart = 5,
+}
 
 //% weight=10 color=#A5825B icon="\uf00a" block="RGB Matrix"
 namespace rgbmatrix {
@@ -111,7 +120,7 @@ namespace rgbmatrix {
     //% duration.fieldOptions.data='[["Forever", -1],["Never",0],["100 ms",100],["200 ms",200],["500 ms",500],["1 s",1000],["2 s",2000],["5 s",5000]]'
     //% duration.defl='-1'
     //% inlineInputMode=inline
-    export function drawEmoji(emoji: Emoji, duration?: number) {
+    export function drawEmoji(emoji: LedEmoji, duration?: number) {
         let data = pins.createBuffer(5);
 
         data[0] = I2C_CMD_DISP_EMOJI;
@@ -305,7 +314,7 @@ namespace rgbmatrix {
     */
     //% blockId=rgbmatrix_display_orientation
     //% block="set display orientation $orientation"
-    export function setDisplayOrientation(orientation: Orientation) {
+    export function setDisplayOrientation(orientation: LedOrientation) {
         let data = pins.createBuffer(2);
         
         data[0] = I2C_CMD_DISP_ROTATE;
@@ -407,6 +416,68 @@ namespace rgbmatrix {
         data[4] = (duration >> 8) & 0xff;
         data[5] = forever ? 1 : 0;
 
+        pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
+    }
+
+    /**
+     * Display other built-in animations on RGB LED Matrix.
+     * @param animation Type of animation. See LedAnimation for more details.
+     * @param duration Set the display time(ms) duration. Set it to 0 to not display.
+     * @param forever Set it to true to display forever, or set it to false to display one time.
+     */
+    //% blockId=rgbmatrix_display_color_animation
+    //% block="display animation $animation||duration (ms) $duration|forever $forever"
+    //% duration.defl=1000
+    //% forever.shadow="toggleOnOff" forever.defl=true
+    //% inlineInputMode=inline
+    export function displayColorAnimation(animation: LedAnimation, duration: number = 1000, forever: boolean = true) {
+        let data = pins.createBuffer(6);
+
+        data[0] = I2C_CMD_DISP_COLOR_ANIMATION;
+
+        let from, to;
+
+        switch(animation) {
+            case 0:
+                from = 0;
+                to = 28;
+            break;
+
+            case 1:
+                from = 29;
+                to = 41;
+            break;
+
+            case 2:				// rainbow cycle
+                from = 255;
+                to = 255;
+            break;
+
+            case 3: 			// fire 
+                from = 254;
+                to = 254;
+            break;
+
+            case 4: 			// walking
+                from = 42;
+                to = 43;
+            break;
+
+            case 5:				// broken heart
+                from = 44;
+                to = 52;
+            break;
+
+            default:
+            break;
+        }
+
+        data[1] = from;
+        data[2] = to;
+        data[3] = duration & 0xff;
+        data[4] = (duration >> 8) & 0xff;
+        data[5] = forever ? 1 : 0;
+        
         pins.i2cWriteBuffer(GROVE_TWO_RGB_LED_MATRIX_DEF_I2C_ADDR, data);
     }
 }
